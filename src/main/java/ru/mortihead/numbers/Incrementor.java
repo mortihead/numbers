@@ -3,6 +3,12 @@ package ru.mortihead.numbers;
 import org.apache.log4j.Logger;
 /**
  * Класс работы с инкрементом
+ * Доступны методы увеличение значения:
+ * @see Incrementor#incrementNumber()
+ * Установки максимального значения:
+ * @see Incrementor#setMaximumValue(int)
+ * Получение значения:
+ * @see Incrementor#getNumber()
  *
  * @author Бочкарев Н.В.
  * @version 0.1

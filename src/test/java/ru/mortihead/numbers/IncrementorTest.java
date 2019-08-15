@@ -6,6 +6,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class IncrementorTest {
+
     private Incrementor incrementor;
 
     @Before
@@ -14,35 +15,59 @@ public class IncrementorTest {
     }
 
     /**
-     * Сделал один тест, который покрывает все методы
+     * Тест инициализации счетчика
      */
     @Test
-    public void testIncrementor() {
+    public void initNumber()  {
+        incrementor.initNumber();
+        assertEquals(incrementor.getNumber(), 0);
+    }
+
+    /**
+     * Тест инкремента до 100
+     */
+    @Test
+    public void testIncrementor_Expect100() {
+        incrementor.initNumber();
         System.out.println("maximum value: "+incrementor.getMaximumValue());
         for (int i = 0; i < 100; i++) {
             incrementor.incrementNumber();
         }
         assertEquals(incrementor.getNumber(), 100);
-        System.out.println("number: "+incrementor.getNumber());
-
-        incrementor.setMaximumValue(-5);
-        assertFalse(incrementor.getNumber() < 0);
-
-        incrementor.setMaximumValue(105);
-        assertEquals(incrementor.getMaximumValue(), 105);
-
-        System.out.println("number: "+incrementor.getNumber());
-
-        for (int i = 0; i < 10; i++) {
-            incrementor.incrementNumber();
-        }
-        System.out.println("number: "+incrementor.getNumber());
-        assertEquals(incrementor.getNumber(), 5);
     }
 
+
+    /**
+     * Тест инкремента до 100
+     */
     @Test
-    public void setMaximumValue() throws Exception {
+    public void testIncrementor_ExpectNumber0() {
+        incrementor.initNumber();
+        System.out.println("maximum value: "+incrementor.getMaximumValue());
+        for (int i = 0; i < 100; i++) {
+            incrementor.incrementNumber();
+        }
+        incrementor.setMaximumValue(50);
+        System.out.println("number: "+incrementor.getNumber());
+
+        assertEquals(incrementor.getNumber(), 0);
+    }
+
+
+    /**
+     * Тест MaximumValue = 105
+     */
+    @Test
+    public void testIncrementor_ExpectaMaximumValue105() {
+        incrementor.setMaximumValue(105);
+        assertEquals(incrementor.getMaximumValue(), 105);
+    }
+
+    /**
+     * Тест отрицательного значения в setMaximumValue
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testSetMaximumValue_ExpectIllegalArgumentException() {
         incrementor.setMaximumValue(-5);
-        assertFalse(incrementor.getMaximumValue() < 0);
     }
 }

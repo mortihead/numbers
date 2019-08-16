@@ -12,11 +12,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-//getNumber
-//incrementNumber
-//setMaximumValue
-//getMaximumValue
-
 @Path("/service")
 public class IncrementorService {
     private static final String INCREMENTOR_SESSION_ATTR = "incrementor";

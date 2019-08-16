@@ -18,13 +18,14 @@ public class IncrementorTest {
      * Тест инициализации счетчика
      */
     @Test
-    public void initNumber()  {
+    public void testInitNumber()  {
+        incrementor.incrementNumber();
         incrementor.initNumber();
         assertEquals(incrementor.getNumber(), 0);
     }
 
     /**
-     * Тест инкремента до 100
+     * Тест инкремента: увеличение счетчика до 100
      */
     @Test
     public void testIncrementor_Expect100() {
@@ -38,7 +39,7 @@ public class IncrementorTest {
 
 
     /**
-     * Тест инкремента до 100
+     * Тест инкремента: - попытка установить MaximumValue меньше текущего счетчика
      */
     @Test
     public void testIncrementor_ExpectNumber0() {

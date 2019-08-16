@@ -4,15 +4,17 @@ import org.apache.log4j.Logger;
 
 /**
  * Класс работы с инкрементом
- * Доступны методы увеличение значения:
  *
  * @author Бочкарев Н.В.
  * @version 0.2
+ * <p>
+ * Доступны методы:
  * @see Incrementor#incrementNumber()
- * Установки максимального значения:
+ * Увеличение "счетчика"
  * @see Incrementor#setMaximumValue(int)
- * Получение значения:
+ * Установка максимального значения
  * @see Incrementor#getNumber()
+ * Получение значения
  */
 public class Incrementor {
     static final private Logger logger = Logger.getLogger(Incrementor.class);
@@ -45,14 +47,14 @@ public class Incrementor {
     /**
      * Возвращает текущее число.
      *
-     * @return текущее число
+     * @return текущее число счетчика
      */
     public int getNumber() {
         return number;
     }
 
     /**
-     * Увеличивает текущее число number на один.
+     * Увеличивает текущее число счетчика number на один.
      * Когда при вызове incrementNumber() текущее число достигает maximumValue
      * number обнуляется
      *
@@ -76,6 +78,8 @@ public class Incrementor {
      * Нельзя позволять установить < 0.
      *
      * @param value значение, которое устанавливается для maximumValue
+     * @throws IllegalArgumentException (optional) при попытке установить
+     *                                  значение < 0
      */
     public void setMaximumValue(int value) throws IllegalArgumentException {
         if (value >= 0) {

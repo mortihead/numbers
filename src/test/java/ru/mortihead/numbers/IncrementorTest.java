@@ -59,7 +59,7 @@ public class IncrementorTest {
      * Тест MaximumValue = 105
      */
     @Test
-    public void testIncrementor_ExpectaMaximumValue105() {
+    public void testIncrementor_ExpectMaximumValue105() {
         incrementor.setMaximumValue(105);
         assertEquals(incrementor.getMaximumValue(), 105);
     }

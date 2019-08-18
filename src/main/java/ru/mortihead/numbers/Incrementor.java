@@ -68,7 +68,7 @@ public class Incrementor {
             logger.debug("number == maximumValue, set number to 0");
             number = 0;
         }
-        logger.debug(String.format("number: %d", number));
+        logger.debug(String.format("number111: %d", number));
     }
 
     /**

@@ -6,11 +6,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.net.*;
+import java.security.PrivilegedExceptionAction;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Scanner;
+import java.util.concurrent.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -86,7 +87,7 @@ public class IncrementorIntegrationTest {
             }
             g++;
         }
-        System.out.println("Session ID: "+jSession);
+        System.out.println("Session ID: " + jSession);
 
         // Теперь проверим чему стало равно maximumvalue в той же сессии
 
@@ -111,4 +112,114 @@ public class IncrementorIntegrationTest {
         assertEquals("105", response.toString());
     }
 
+
+    /**
+     * Метод для тестирования одновременных вызовов счетчика по Rest-сервису
+     *
+     * @param count количество вызовов
+     * @return getnumber, который возвращается в конце
+     */
+    private int getNumber_after_call_incrementnumber(int count) {
+        System.out.println(String.format("getNumber_after_call_incrementnumber, count: %s", count));
+        int result = -1;
+        try {
+            // Первый вызов, чтобы получить jsession
+            String url = "http://localhost:8082/service/getnumber";
+            URL obj = new URL(url);
+            HttpURLConnection http = (HttpURLConnection) obj.openConnection();
+            http.setRequestMethod("GET");
+            http.setRequestProperty("User-Agent", USER_AGENT);
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(http.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            int g = 0;
+            String jSession = "";
+            while (http.getHeaderField(g) != null) {
+                // System.out.println(http.getHeaderField(g));
+                if (http.getHeaderField(g).startsWith("JSESSION")) {
+                    jSession = http.getHeaderField(g);
+                }
+                g++;
+            }
+
+            // Теперь делаем incrementnumber в той же сессии
+
+            for (int i = 0; i < count; i++) {
+
+                url = "http://localhost:8082/service/incrementnumber";
+                obj = new URL(url);
+                http = (HttpURLConnection) obj.openConnection();
+                http.setRequestMethod("GET");
+                http.setRequestProperty("User-Agent", USER_AGENT);
+                http.setRequestProperty("Cookie", jSession);
+
+                in = new BufferedReader(
+                        new InputStreamReader(http.getInputStream()));
+                response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                result = Integer.valueOf(response.toString());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            result = -1;
+        }
+        System.out.println(String.format("getNumber_after_call_incrementnumber, result: %s", result));
+        return result;
+    }
+
+    class ConcurrencyResult {
+        int expectedValue;
+        int resultingValue;
+
+        ConcurrencyResult(int expectedValue, int resultingValue) {
+            this.expectedValue = expectedValue;
+            this.resultingValue = resultingValue;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("expectedValue: %d, resultingValue: %d", expectedValue, resultingValue);
+        }
+    }
+
+    @Test
+    public void testConcurrency() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        System.out.println("--- testConcurrency ---");
+        // количество потоков
+        int threads = 100;
+        // сильно нагружать не буду, 10 обращений достаточно
+        final int max_call_count = 10; // Количество вызовов рандомно, ограничено этим значением
+
+        ExecutorService executorService = Executors.newFixedThreadPool(threads);
+
+        Collection<Future<ConcurrencyResult>> futures = new ArrayList<>(threads);
+        for (int t = 0; t < threads; ++t) {
+            futures.add(executorService.submit(new Callable<ConcurrencyResult>() {
+                @Override
+                public ConcurrencyResult call() {
+                    int count = 1 + (int) (Math.random() * max_call_count);
+                    return new ConcurrencyResult(count, getNumber_after_call_incrementnumber(count));
+                }
+            }));
+        }
+
+        for (Future<ConcurrencyResult> f : futures) {
+            ConcurrencyResult result = f.get();
+            System.out.println("Get future result : " + result);
+            assertEquals(result.expectedValue, result.resultingValue);
+        }
+        System.out.println("--- testConcurrency finished ---");
+    }
 }

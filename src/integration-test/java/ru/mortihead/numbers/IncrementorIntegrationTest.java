@@ -200,7 +200,7 @@ public class IncrementorIntegrationTest {
         // количество потоков
         int threads = 100;
         // сильно нагружать не буду, 10 обращений достаточно
-        final int max_call_count = 10; // Количество вызовов рандомно, ограничено этим значением
+        final int max_call_count = 100; // Количество вызовов рандомно, ограничено этим значением
 
         ExecutorService executorService = Executors.newFixedThreadPool(threads);
 
@@ -208,16 +208,22 @@ public class IncrementorIntegrationTest {
         for (int t = 0; t < threads; ++t) {
             futures.add(executorService.submit(new Callable<ConcurrencyResult>() {
                 @Override
-                public ConcurrencyResult call() {
+                public ConcurrencyResult call() throws InterruptedException {
                     int count = 1 + (int) (Math.random() * max_call_count);
                     return new ConcurrencyResult(count, getNumber_after_call_incrementnumber(count));
                 }
             }));
         }
 
+        // Пожождем пока все потоки не завершаться, чтобы в одном месте вывести результат
+        // Иначе, проход по futures будет в f.get() блокировать основной поток выполнения
+
+        executorService.shutdown();
+        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+
         for (Future<ConcurrencyResult> f : futures) {
             ConcurrencyResult result = f.get();
-            System.out.println("Get future result : " + result);
+            System.out.println("Get future result: " + result);
             assertEquals(result.expectedValue, result.resultingValue);
         }
         System.out.println("--- testConcurrency finished ---");

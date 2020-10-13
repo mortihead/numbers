@@ -13,7 +13,7 @@
         <java.source>1.7</java.source>
         <java.target>1.7</java.target>
         <log4j.version>1.2.17</log4j.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skip.unit.tests>false</skip.unit.tests>
     </properties>
